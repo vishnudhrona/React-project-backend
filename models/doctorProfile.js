@@ -100,7 +100,13 @@ const doctorProfileSchema = new Schema({
     doctorId : {
         type : String,
         required : true
-    }
+    },
+    
+signupStatus : {
+    type : String,
+    required : true
+}
+
 })
 
 module.exports = mongoose.model('DoctorProfile', doctorProfileSchema)

@@ -6,6 +6,7 @@ const nodemailer = require("nodemailer");
 const Department = require('../models/department')
 const User = require('../models/user')
 const BookingDetails = require('../models/bookingDetails')
+const DoctorProfile = require('../models/doctorProfile')
 const Razorpay = require('razorpay');
 
 var instance = new Razorpay({ 
@@ -13,7 +14,7 @@ var instance = new Razorpay({
     key_secret: process.env.key_secret 
 })
 
-let getAllDoctors = () => {
+const getAllDoctors = () => {
     return new Promise((resolve, reject) => {
         try {
             Doctor.find().then(async(doctors) => {
@@ -29,9 +30,12 @@ let getAllDoctors = () => {
     })
 }
 
-let doctorInterdict = (doctorId) => {
+const doctorInterdict = (doctorId) => {
     return new Promise(async(resolve, reject) => {
         try {
+           let profileStatus = await DoctorProfile.updateOne({ doctorId : doctorId },{ $set : {
+            signupStatus : 'Interdict'
+           }}) 
            await Doctor.findByIdAndUpdate(doctorId, {signupStatus : 'Interdict'}, { new : true }).then(async(interdictDoctor) => {
             interdictDoctor = await interdictDoctor
                 if(interdictDoctor.signupStatus === "Interdict") {
@@ -56,10 +60,7 @@ let doctorInterdict = (doctorId) => {
                           subject: "Hello ✔", // Subject line
                           text: "Hello world?", // plain text body
                           html: "<b>Hello world?</b>", // html body
-                        });
-                      
-                        console.log("Message sent: %s", info.messageId);
-                        
+                        });                        
                       }
                       
                       main().catch(console.error);
@@ -73,44 +74,46 @@ let doctorInterdict = (doctorId) => {
     })
 }
 
-let doctorApproval = (doctorId) => {
-    return new Promise(async(resolve, reject) => {
+const doctorApproval = (doctorId) => {
+    return new Promise(async (resolve, reject) => {
         try {
-         await Doctor.findByIdAndUpdate(doctorId, { signupStatus : "Approved" }, { new : true }).then(async(approvedDoctor) => {
-             approvedDoctor = await approvedDoctor
-                if(approvedDoctor.signupStatus === "Approved") {
+            let profileStatus = await DoctorProfile.updateOne({ doctorId: doctorId }, {
+                $set: {
+                    signupStatus: 'Approved'
+                }
+            })
+            await Doctor.findByIdAndUpdate(doctorId, { signupStatus: "Approved" }, { new: true }).then(async (approvedDoctor) => {
+                approvedDoctor = await approvedDoctor
+                if (approvedDoctor.signupStatus === "Approved") {
                     const transporter = nodemailer.createTransport({
                         host: "forward-email=centaurr252@gmail.com",
                         port: 465,
                         secure: true,
                         service: 'Gmail',
                         auth: {
-                          // TODO: replace `user` and `pass` values from <https://forwardemail.net>
-                          user: 'centaurr252@gmail.com',
-                          pass: 'nuslvzvfidhqyjrr',
+                            // TODO: replace `user` and `pass` values from <https://forwardemail.net>
+                            user: 'centaurr252@gmail.com',
+                            pass: 'nuslvzvfidhqyjrr',
                         },
-                      });
+                    });
 
 
-                      async function main() {
-                          // send mail with defined transport object
-                          const info = await transporter.sendMail({
-                              from: 'centaurr252@gmail.com', // sender address
-                              to: approvedDoctor.email, // list of receivers
-                          subject: "Hello ✔", // Subject line
-                          text: "Hello world?", // plain text body
-                          html: "<b>Hello world?</b>", // html body
+                    async function main() {
+                        // send mail with defined transport object
+                        const info = await transporter.sendMail({
+                            from: 'centaurr252@gmail.com', // sender address
+                            to: approvedDoctor.email, // list of receivers
+                            subject: "Hello ✔", // Subject line
+                            text: "Hello world?", // plain text body
+                            html: "<b>Hello world?</b>", // html body
                         });
-                      
-                        console.log("Message sent: %s", info.messageId);
-                        
-                      }
-                      main().catch(console.error);
+                    }
+                    main().catch(console.error);
                 }
                 resolve(approvedDoctor.signupStatus)
             })
-        } catch(err) {
-            console.error(err,'vtvtvtv');
+        } catch (err) {
+            console.error(err, 'vtvtvtv');
         }
     })
 }
@@ -225,7 +228,6 @@ const blockUser = (userId) => {
    }
 
    const doctorPayment = (paymentDetails) => {
-    console.log(paymentDetails,'bbbbbbbbbbbbbbbb');
     return new Promise((resolve, reject) => {
         try {
             var options = {
@@ -238,7 +240,6 @@ const blockUser = (userId) => {
                 if(err) {
                     console.log(err,'payment error');
                 } else {
-                    console.log(order,'order successsss');
                     resolve(order)
                 }
               });
@@ -266,7 +267,6 @@ const blockUser = (userId) => {
 
             if(generated_signature == paymentDetails.res.razorpay_signature) {
                 let paymentStatus = await BookingDetails.updateOne({ _id : paymentDetails.order.receipt},{$set : { adminPaymentStatus : 'success'}})
-                console.log(paymentStatus,'ccccccccccccccccc');
                 resolve({ status : true })
             } else {
                 reject(new Error("HMAC verification failed"))

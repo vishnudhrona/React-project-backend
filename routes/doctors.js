@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const doctorControllers = require('../controllers/doctorControllers')
+const { autherizeRole } = require('../middlewares/jwt')
 var multer = require('multer');
 
 const storage = multer.memoryStorage()
@@ -13,14 +14,14 @@ router.post('/doctorlogin', doctorControllers.doctorLogin)
 router.post('/doctorforgotpassword', doctorControllers.doctorForgotPassword)
 router.post('/doctorforgotpasswordconfirm',doctorControllers.doctorForgotPasswordConfirm)
 router.post('/docresendotp',doctorControllers.doctorResendOtp)
-router.get('/fetchtimeschedule', doctorControllers.fetchDoctorTimeSchedule)
+router.get('/fetchtimeschedule',autherizeRole('doctor'),doctorControllers.fetchDoctorTimeSchedule)
 router.post('/timeschedule',doctorControllers.doctorTimeschedule)
 router.post('/deletedoctorschedule',doctorControllers.deleteDoctorSchedule)
 router.post('/deletepastschedule',doctorControllers.deletePastSchedule)
-router.get('/fetchdoctorprofile',doctorControllers.fetchDoctorProfile)
-router.get('/fetchbookingdetails', doctorControllers.fetchBookingDetails)
+router.get('/fetchdoctorprofile',autherizeRole('doctor'),doctorControllers.fetchDoctorProfile)
+router.get('/fetchbookingdetails',autherizeRole('doctor'),doctorControllers.fetchBookingDetails)
 router.get('/invitingpatient',doctorControllers.invitingPatient)
-router.get('/fetchdocpaymentdetails',doctorControllers.fetchDocPaymentDetails)
+router.get('/fetchdocpaymentdetails',autherizeRole('doctor'),doctorControllers.fetchDocPaymentDetails)
 router.post('/addprescription',doctorControllers.addPrescription)
 router.get('/fetchpatientdetails',doctorControllers.fetchPatientDetails)
 

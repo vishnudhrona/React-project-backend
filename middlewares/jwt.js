@@ -3,37 +3,29 @@ const env = require('dotenv').config()
 
 module.exports = {
 
-    autherizeRole : (requiredRole) => (req, res, next) => {
-        console.log(requiredRole,'this is workingggggggggggg');
+    autherizeRole : (requiredRole) => async(req, res, next) => {
         const baererToken = req.headers.authorization
-        console.log(baererToken,'got it');
 
         if(!baererToken) {
-            console.log('401 is working');
             return res.status(401).json({ message : "No token provided"})
         }
-        const token = baererToken.split(" ")[1]
-        console.log(token,'tytytyty');
-         
+        const token = await baererToken.split(" ")[1]
+        
         if(!token) {
-            console.log('402 is workinggggggggg');
             return res.status(401).json({ message : "Invalide token format" })
         }
+        // const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWIwOWM3NGJjMWFiZTg0NzJjY2IwNDciLCJ1c2VyIjoiVmlzaG51IiwibnVtYmVyIjoiODA4OTQ0NTEyOCIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzEwOTMzMjM0LCJleHAiOjE3MTA5NDA0MzR9.m14wIMgEQHcNwdMQB1tkHBdvPURUxDeMaAWjh-HjdCE'
         const jwtKey = process.env.JWT_TOKEN;
 
-        console.log(jwtKey,'88888888999999999999');
-
-        jwt.verify(token, jwtKey, (err, decodedToken) => {
-            req.token = token;
+         jwt.verify(token, jwtKey, (err, decodedToken) => {
             if(err) {
-                console.log(err,'403 is workingggg');
-                return res.status(401).json({ message : err.message})
+                return res.status(200).json({ status : true })
             }
 
             const { role } = decodedToken
 
             if(!role || role !== requiredRole) {
-                return res.status(403).json({ message : 'Insufficient permission '})
+                return res.status(200).json({ status : true })
             }
             next();
         })
@@ -50,7 +42,7 @@ module.exports = {
                 number : user.number,
                 role : 'user'
             }
-            jwt.sign(payload, jwtKey, {expiresIn : '2h'}, (err, token) => {
+            jwt.sign(payload, jwtKey, { expiresIn : '2h' }, (err, token) => {
                 if(err) {
                     reject(err)
                 } else {

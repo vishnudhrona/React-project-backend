@@ -64,7 +64,6 @@ const otpVerification = (otpDetails) => {
 
                 if(otpVerifiedStatus === 'approved') {
                     let user = await temporaryUser.findOne({number : number})
-                    console.log(user,'i got user');
                     if (user) {
                         let newPatient = new User(user.toObject())
                         newPatient.signupStatus = 'unblock';
@@ -85,7 +84,6 @@ const otpVerification = (otpDetails) => {
  }
 
  const signupResendOtp = (number) => {
-    console.log(number,'resend otp number');
     return new Promise((resolve, reject) => {
         client.verify.v2
         .services(serviceSID)
@@ -194,7 +192,6 @@ const resendOtp = (email) => {
             let user = await User.findOne({ email : email.formData.userEmail })
             if(user) {
                 user = await user.toObject() 
-                console.log(user,'i got userrrrr');
                 response.status = true
               client.verify.v2
                 .services(serviceSID)
@@ -213,32 +210,19 @@ const resendOtp = (email) => {
     })
 }
 
-const fetchAllDoctors = () => {
-    return new Promise(async(resolve, reject) => {
-        try {
-           await DoctorProfile.find().sort({ firstname : 1 }).then((docProf) => {
-            resolve(docProf)
-           })
-           .catch((error) => {
-            reject(error)
-           })
-        } catch(err) {
-            console.error(err);
-        }   
-    })
-}
-
 const sortDoctor = (speciality) => {
  return new Promise(async(resolve, reject) => {
-    if(speciality.selectedOption && speciality.selectedOption.length === 0) {
-        await DoctorProfile.find().sort({ firstname : 1 }).then((docProf) => {
-            resolve(docProf)
-        })
+    if(speciality.search) {
+            let dep = await DoctorProfile.find({
+                department: speciality.search
+             }); 
+             let filteredDoc = dep.filter((value) => value.signupStatus === 'Approved')
+               resolve(filteredDoc)
     } else {
-        let dep = await DoctorProfile.find({
-            department: speciality.selectedOption
-          }); 
-          resolve(dep)
+        await DoctorProfile.find().sort({ firstname : 1 }).then((docProf) => {
+            let filteredDocProf = docProf.filter((value) => value.signupStatus === 'Approved')
+            resolve(filteredDocProf)
+        })
     }
  })
 }
@@ -271,7 +255,6 @@ const fetchTime = (timeId) => {
                 resolve({timeSchedule, doctor})
             }
         } catch(err) {
-            console.log(err,'zzzzzzzzzzzzzzz');
             reject(err)
         }
        
@@ -492,6 +475,26 @@ const fetchPrescription = (patientId) => {
     })
 }
 
+const fetchLastAppointment = (patientId) => {
+    return new Promise(async(resolve, reject) => {
+        try {
+            const lastBooking = await BookingSlot.findOne({ patientId : patientId.patientId })
+            .sort({ _id : -1 }).limit(1) 
+            resolve(lastBooking)
+        } catch(err) {
+            console.error(err);
+        }
+    })
+}
+
+const landingPageFetchDoctors = () => {
+    return new Promise((resolve, reject) => {
+        DoctorProfile.find().then((doctors) => {
+                resolve(doctors)
+        })
+    })
+}
+
 module.exports = {
     userSignup,
     otpVerification,
@@ -500,7 +503,6 @@ module.exports = {
     forgotPassword,
     forgotPasswordConfirm,
     resendOtp,
-    fetchAllDoctors,
     sortDoctor,
     fetchUserSideSchedule,
     fetchTime,
@@ -515,5 +517,7 @@ module.exports = {
     fetchUserDetails, 
     updatePatientData,
     deletePendingSlots,
-    fetchPrescription
+    fetchPrescription,
+    fetchLastAppointment,
+    landingPageFetchDoctors
 }

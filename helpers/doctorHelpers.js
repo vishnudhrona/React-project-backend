@@ -217,7 +217,6 @@ const fetchDoctorTimeSchedule = (docId) => {
                 resolve(response)
             })
         } catch(err) {
-            console.error(err,'i got error in fetch doctor timeschedule');
             reject(err)
         }
     })
@@ -275,7 +274,6 @@ const fetchBookingDetails = (docId) => {
     return new Promise(async(resolve, reject) => {
         try {
             let bookings = await BookingSlot.find({ docId : docId.doctorId })
-            console.log(bookings,'qqqqqccccceeeee');
             if(bookings) {
                 resolve(bookings)
             } else {
@@ -313,9 +311,7 @@ const invitingPatient = (invitingDetails) => {
                     subject: "Hello ✔", // Subject line
                     text: 'copy this url to your browser', // plain text body
                     html: `<p>${invitingDetails.urlWithData}</p>`, // html body
-                  });                
-                  console.log("Message sent: %s", info.messageId);
-                  
+                  });                                  
                 }
                 
                 main().catch(console.error);
@@ -342,19 +338,21 @@ const fetchDocPaymentDetails = (docId) => {
 const addPrescription = (pdfDetails) => {
     return new Promise(async(resolve, reject) => {
         try {
-            let bookingDetails = await BookingDetails.findOne({ userId : pdfDetails.patientId })
+            let bookingDetails = await BookingSlot.findOne({ _id : pdfDetails.bookingId })
             let prescriptionDetails = {
                 ...pdfDetails,
-                doctorfirstname : bookingDetails.doctorDetails.doctorFirstName,
-                doctorlastname : bookingDetails.doctorDetails.doctorLastName,
-                department : bookingDetails.doctorDetails.department,
-                patientfirstname : bookingDetails.userFirstName,
-                patientlastname : bookingDetails.userLastName,
+                doctorfirstname : bookingDetails.doctorfirstname,
+                doctorlastname : bookingDetails.doctorlastname,
+                department : bookingDetails.department,
+                patientfirstname : bookingDetails.patientfirstname,
+                patientlastname : bookingDetails.lastname,
                 bookingDate : bookingDetails.bookingDate,
-                bookingtime : bookingDetails.bookingTime
+                bookingtime : bookingDetails.slotTime
             }
             let pdf = await Prescription.create(prescriptionDetails)
             if(pdf) {
+                let bookingId = pdfDetails.bookingId
+                await BookingSlot.deleteOne({ _id : bookingId})
                 resolve({ status : true })
             }
         } catch(err) {
@@ -392,5 +390,5 @@ module.exports = {
     invitingPatient,
     fetchDocPaymentDetails,
     addPrescription,
-    fetchPatientDetails
+    fetchPatientDetails,
 }

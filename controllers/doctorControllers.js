@@ -72,6 +72,7 @@ let doctorAddProfile = async(req, res) => {
 
         docprof = req.body
         docprof.imageName = imageName
+        docprof.signupStatus = 'Interdict'
 
         let doctorProfileAddedStatus = await doctorHelpers.addDoctorProfile(docprof)
         if(doctorProfileAddedStatus) {
@@ -102,7 +103,6 @@ let doctorLogin = async (req, res) => {
             res.status(200).json({status: false, error: 'Login failed. Invalid credentials.'});
         }
     } catch(err) {
-        console.log(err,'xdxdxdxd');
         res.status(500).json({ status: false, message: 'Internal server error.' });
     }
    
@@ -272,9 +272,7 @@ let fetchDoctorProfile = async (req, res) => {
   }
 
   const fetchBookingDetails = (req, res) => {
-    console.log(req.query,'cccccc');
     doctorHelpers.fetchBookingDetails(req.query).then((response) => {
-        console.log(response,'qaaatttttttttttttttttt');
         if(response) {
             res.status(200).json({ response })
         } else {
@@ -284,19 +282,15 @@ let fetchDoctorProfile = async (req, res) => {
 }
 
 const invitingPatient = (req, res) => {
-    console.log(req.query,'wwwwwwwwwwwwwcccccccc');
     try { 
         const { peerId, bookinguseremail } = req.query
-        console.log(peerId,'bbbbbbbbbbb');
     
         const { URLSearchParams } = require('url');
     
         const baseUrl = 'http://localhost:5173/doctors/remoteuservideo'
         const params = new URLSearchParams({ peerId : peerId})
         const urlWithData = `${baseUrl}?${params.toString() || ''}`
-    
-        console.log(urlWithData,'url with dataaaa');
-    
+        
         doctorHelpers.invitingPatient({bookinguseremail,urlWithData})
     } catch(err) {
         console.error(err);
@@ -315,21 +309,49 @@ const fetchDocPaymentDetails = (req, res) => {
 
 const addPrescription = async(req, res) => {
     try {
-        console.log(req.body,'i got pdffffffffff');
-        const { formData, patientId, doctorId } = req.body
+        const { formData, patientId, doctorId, bookingId } = req.body
 
         const htmlContent = `
-            <html>
+        <html>
                 <head>
                     <title>Prescription</title>
+                    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
                 </head>
                 <body>
-                    <h1>Prescription</h1>
-                    <p>First Name: ${formData.firstname}</p>
-                    <p>Last Name: ${formData.lastname}</p>
-                    <p>Gender: ${formData.gender}</p>
-                    <p>Date of Birth: ${formData.dob}</p>
-                    <p>Description: ${formData.description}</p>
+                    <div class='border mx-40 my-10'>
+                        <div class='flex justify-center item-center pt-5'>
+                            <img class='bg-blue-500' src="https://www.asterhospitals.in/themes/custom/aster/aster-logo.svg" alt="" />
+                        </div>
+                        <div class='px-5 pt-5'>
+                            <h1 class='text-2xl font-semibold mb-2'>Prescription Details</h1>
+                            <div class='flex justify-between'>
+                                <div>
+                                    <p><span class='font-semibold'>Name:</span> ${formData?.patientfirstname ?? ''} ${formData?.lastName ?? ''}</p>
+                                    <p><span class='font-semibold'>Date:</span> ${formData?.dob ?? ''}</p>
+                                </div>
+                                <div>
+                                    <p><span class='font-semibold'>Age:</span> ${formData?.age ?? ''}</p>
+                                    <p><span class='font-semibold'>Disease:</span> ${formData?.disease ?? ''}</p>
+                                    <p><span class='font-semibold'>Gender:</span> ${formData?.gender ?? ''}</p>
+                                </div>
+                            </div>
+                            <hr class='my-3'>
+                            <div class='flex justify-center items-center gap-10'>
+                                <div class='flex flex-col gap-2'>
+                                    <p class='font-semibold underline'>Medicines</p>
+                                    ${formData?.medicine ? formData.medicine.split('\n').map((medicine, index) => (
+                                        `<div key=${index}>${medicine}</div>`
+                                    )).join('') : ''}
+                                </div>
+                                <div class='flex flex-col gap-2'>
+                                    <p class='font-semibold underline'>Tests</p>
+                                    ${formData?.test ? formData.test.split('\n').map((test, index) => (
+                                        `<div key=${index}>${test}</div>`
+                                    )).join('') : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </body>
             </html>
         `;
@@ -356,7 +378,8 @@ const addPrescription = async(req, res) => {
         const body = {
             patientId,
             pdfBase64,
-            doctorId
+            doctorId,
+            bookingId
         }
 
         doctorHelpers.addPrescription(body).then((status) => {
@@ -395,5 +418,5 @@ module.exports = {
     invitingPatient,
     fetchDocPaymentDetails,
     addPrescription,
-    fetchPatientDetails
+    fetchPatientDetails,
 }

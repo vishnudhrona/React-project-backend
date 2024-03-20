@@ -83,7 +83,6 @@ let userLogin = async(req, res) => {
             }
 
         } catch(err) {
-            console.error(err,'aaaaaaaa');
             res.status(500).json({ status: false, message: 'Internal server error.' });
         }
 
@@ -123,57 +122,9 @@ const resendOtp = (req, res) => {
     userHelpers.resendOtp(email)
 }
 
-const doctorBooking = (req, res) => {
-    try {
-        userHelpers.fetchAllDoctors().then(async(doc) => {
-            if(doc && doc.length > 0) {
-                const doctorImage = [];
-
-                const getImageName = (doctor) => doctor.imageName;
-                // const imageNames = response.map(getImageName);
-                for(const doctor of doc) {
-                    const imageName = getImageName(doctor)
-
-                    const getObjectParams = {
-                        Bucket : bucketName,
-                        Key : imageName,
-                    };
-
-                    const command = new GetObjectCommand(getObjectParams);
-                    const url = await getSignedUrl(s3, command, { expiresIn: 3600 });
-                    let docImageUrl = url;
-
-                    // let docProfile = {
-                    //     doctor : doc,
-                    //     image : docImageUrl
-                    // }
-                     
-                    doctorImage.push(docImageUrl)
-                }
-                let docProfile = {
-                    image : doctorImage,
-                    doctorDetails : doc
-                }
-
-                    if(doctorImage.length > 0) {
-                        res.status(200).json({ docProfile })
-                    } else {
-                        res.status(401).json({message : 'something went wrong'})
-                    }
-
-            } else {
-                res.status(401).json({message : 'something went wrong'})
-            }
-        })
-    } catch(err) {
-        console.error(err,'can not access doctor booking details');
-        res.status(500).json({ message: 'Server error' });
-    }
-}
-
 const sortDoctor = async(req, res) => {
     try {
-        let sortedDocs = await userHelpers.sortDoctor(req.body)
+        let sortedDocs = await userHelpers.sortDoctor(req.query)
 
         if(sortedDocs && sortedDocs.length > 0) {
             const doctorImage = [];
@@ -191,11 +142,6 @@ const sortDoctor = async(req, res) => {
                 const command = new GetObjectCommand(getObjectParams);
                 const url = await getSignedUrl(s3, command, { expiresIn: 3600 });
                 let docImageUrl = url;
-
-                // let docProfile = {
-                //     doctor : doc,
-                //     image : docImageUrl
-                // }
                  
                 doctorImage.push(docImageUrl)
             }
@@ -284,13 +230,11 @@ const userBookedSlots = (req, res) => {
     }
 
     userHelpers.slotBooking(bookingSlotDetails).then((response) => {
-        if(response.message) {
-            res.status(200).json({ message : "You alredy have another booking", status : true, response})
-        } else {
-            res.status(200).json({ message : "Your booking is successfull", status : false, response })
+        if (response) {
+            res.status(200).json({ message: "Your booking is successfull", status: false, response })
         }
     })
-     }
+}
 
      const fetchPaymentDetails = (req, res) => {
         userHelpers.fetchPaymentDetails(req.query).then((response) => {
@@ -349,7 +293,6 @@ const userBookedSlots = (req, res) => {
                         bookYear = parseInt(bookYear)
                         let bookedDate = new Date(bookYear, bookMonth - 1, bookDay)
 
-                        console.log(dateObject.getTime()+' = '+bookedDate.getTime());
                         if(dateObject.getTime() === bookedDate.getTime()) {
                             return value
                         }
@@ -403,7 +346,6 @@ const userBookedSlots = (req, res) => {
                 dateOfBirth
             }
             userHelpers.updatePatientData(body).then((response) => {
-                console.log(response,'ttttttttttt');
                 res.status(200).json({ response })
             }) 
         } catch(err) {
@@ -420,6 +362,16 @@ const userBookedSlots = (req, res) => {
             console.error(err);
         }
     }
+    
+    const fetchLastAppointment = (req, res) => {
+        try {
+            userHelpers.fetchLastAppointment(req.query).then((bookings) => {
+                res.status(200).json({ bookings })
+            })
+        } catch(err) {
+            console.error(err);
+        }
+    }
 
     const fetchPrescription = (req, res) => {
         try {
@@ -431,34 +383,42 @@ const userBookedSlots = (req, res) => {
         }
     }
 
-    const googleAuthSuccess = (req, res) => {
-        if(req.user) {
-            res.status(200).json({ error:false, message:"Successfully logged in", user:req.user})
+    const landingPageFetchDoctors = async(req, res) => {
+        let doctors = await userHelpers.landingPageFetchDoctors()
+    
+        if(doctors && doctors.length > 0) {
+            const doctorImage = []
+            const getImageName = (doctor) => doctor.imageName
+    
+            for(const doctor of doctors) {
+                const imageName = getImageName(doctor)
+    
+                const getObjectParams = {
+                    Bucket : bucketName,
+                    Key : imageName
+                }
+    
+                const command = new GetObjectCommand(getObjectParams);
+                const url = await getSignedUrl(s3, command, { expiresIn : 3600});
+                let docImageUrl = url
+                doctorImage.push(docImageUrl)
+            }
+    
+            let doctorsDetails = {
+                image : doctorImage,
+                details : doctors
+            }
+    
+            if(doctorImage.length > 0) {
+                res.status(200).json({ doctorsDetails })
+            } else {
+                res.status(401).json({ message : 'Something went to wrong' })
+            }
         } else {
-            res.status(403).json({ error:true, message:"Not autherised"})
+            res.status(200).json({ message : 'something went to wrong' })
         }
     }
 
-    const googleAuthFailed = (req, res) => {
-        res.status(401).json({ error:true, message:'Login failure' })
-    }
-
-    const googleAuth = () => {
-        passport.authenticate("google", {
-            successRedirect:process.env.CLIENT_URL,
-            failureRedirect:'/login/failed',
-        })
-    }
-
-    const passportAuthentication = async() => {
-        console.log('rrrrrrrrrrrr');
-        await passport.authenticate("google",{scpoe :["profile", "email"]})
-    }
-
-    const googleAuthLogout = (req, res) => {
-        req.logout()
-        res.redirect(process.env.CLIENT_URL)
-    }
 
 module.exports = {
     userSignup,
@@ -468,7 +428,6 @@ module.exports = {
     forgotPassword,
     forgotPasswordConfirm,
     resendOtp,
-    doctorBooking,
     sortDoctor,
     fetchUserSideSchedule,
     fetchTimeDetailse,
@@ -483,9 +442,6 @@ module.exports = {
     updatePatientData,
     deletePendingSlots,
     fetchPrescription,
-    googleAuthSuccess,
-    googleAuthFailed,
-    googleAuth,
-    passportAuthentication,
-    googleAuthLogout
+    fetchLastAppointment,
+    landingPageFetchDoctors
 }

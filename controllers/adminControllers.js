@@ -13,7 +13,6 @@ const adminLogin = async (req, res) => {
         if(req.body.formData.email === adminCredential.email && req.body.formData.password === adminCredential.password) {
             response.status = true
             const token = await signAdmin()
-            console.log(token,'admin token');
             res.status(200).json({ message : 'Admin login successfully', response, auth : token })
         } else {
             response.status = false
@@ -111,7 +110,6 @@ const updateDepartment = (req, res) => {
 const getUser = (req, res) => {
     try {
         adminHelpers.getAllUsers().then((users) => {
-            console.log(users,'i get all users from my database');
             if(users) {
                 res.status(200).json({ users : users })
             }
@@ -176,7 +174,6 @@ const doctorPayment = (req, res) => {
 const doctorVerifyPayment = (req, res) => {
     try {
         adminHelpers.doctorVerifyPayment(req.body).then((response) => {
-            console.log(response,'payment verification responseeeeee');
             if(response) {
                 res.status(200).json({ response })
             } else {
