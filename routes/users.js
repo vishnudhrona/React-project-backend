@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const cors = require("cors");
-const passport = require('passport')
 const userControllers = require('../controllers/userControllers');
 const { autherizeRole } = require('../middlewares/jwt');
 
@@ -20,7 +19,7 @@ router.get('/fetchpaymentdetails', userControllers.fetchPaymentDetails)
 router.post('/userpayment', userControllers.razorPayment)
 router.post('/verifypayment', userControllers.verifyPayment)
 router.get('/hiddenbookingtime',userControllers.hiddenBookingTime)
-router.get('/fetchuserprofile',userControllers.fetchUserProfile)
+router.get('/fetchuserprofile',autherizeRole('user'),userControllers.fetchUserProfile)
 router.post('/deletebooking',userControllers.deleteBooking)
 router.get('/fetchuserDetails',userControllers.fetchUserDetails)
 router.post('/updatepatientdata',userControllers.updatePatientData)

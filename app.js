@@ -6,8 +6,6 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cookieSession = require('cookie-session')
-const passport = require('passport')
-const passportSetup = require('./middlewares/passport')
 
 
 var app = express();
@@ -45,9 +43,6 @@ app.use(
     maxAge:24*60*60*100,
   })
 )
-
-app.use(passport.initialize());
-app.use(passport.session());
 
 app.use(cors(corsOptions));
 

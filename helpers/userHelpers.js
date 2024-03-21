@@ -467,7 +467,7 @@ const deletePendingSlots = () => {
 const fetchPrescription = (patientId) => {
     return new Promise(async(resolve, reject) => {
         try {
-            let prescription = await Prescription.find({ patientId : patientId.patientId })
+            let prescription = await Prescription.find({ patientId : patientId.patientId }).sort({ _id : -1})
             resolve(prescription)
         } catch(err) {
             console.error(err);

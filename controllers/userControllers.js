@@ -2,7 +2,6 @@ const express = require("express");
 const cors = require("cors");
 const router = express.Router();
 const userHelpers = require('../helpers/userHelpers')
-const passport = require('passport')
 const { signUser } = require('../middlewares/jwt')
 const { S3Client, PutObjectCommand, GetObjectCommand} = require("@aws-sdk/client-s3");
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");

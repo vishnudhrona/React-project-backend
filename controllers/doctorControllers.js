@@ -8,6 +8,7 @@ const crypto = require('crypto');
 const sharp = require('sharp');
 const { signDoctor } = require('../middlewares/jwt');
 const puppeteer=require('puppeteer')
+const BASE_URL = process.env.BASE_URL
 
 const randomNameImage = (bytes = 32) => crypto.randomBytes(bytes).toString('hex')
 
@@ -287,7 +288,7 @@ const invitingPatient = (req, res) => {
     
         const { URLSearchParams } = require('url');
     
-        const baseUrl = 'http://localhost:5173/doctors/remoteuservideo'
+        const baseUrl = `${BASE_URL}/http://localhost:5173/doctors/remoteuservideo`
         const params = new URLSearchParams({ peerId : peerId})
         const urlWithData = `${baseUrl}?${params.toString() || ''}`
         
