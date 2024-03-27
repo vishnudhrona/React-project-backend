@@ -10,7 +10,7 @@ var cookieSession = require('cookie-session')
 
 var app = express();
 
-const allowedOrigin = 'https://react-project-frontend-mu.vercel.app/'
+const allowedOrigin = 'https://react-project-frontend-six.vercel.app/'
 
 const corsOptions = {
   origin: allowedOrigin,

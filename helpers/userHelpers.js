@@ -325,7 +325,7 @@ const razorPayPayment = (paymentDetails) => {
             userFirstName : user.patientfirstname,
             userLastName : user.lastName,
             userNumber : user.number,
-            userDob : user.dob,
+            userDob : user.dateOfBirth,
             userEmail : user.email,
             bookingDate : date.dateObject,
             bookingTime : slotTime,
