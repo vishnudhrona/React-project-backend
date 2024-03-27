@@ -10,7 +10,7 @@ var cookieSession = require('cookie-session')
 
 var app = express();
 
-const allowedOrigin = 'https://react-project-frontend-six.vercel.app/'
+const allowedOrigin = 'http://localhost:5173'
 
 const corsOptions = {
   origin: allowedOrigin,
