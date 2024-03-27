@@ -288,7 +288,7 @@ const invitingPatient = (req, res) => {
 
         const { URLSearchParams } = require('url');
 
-        const baseUrl = `${BASE_URL}/http://localhost:5173/doctors/remoteuservideo`
+        const baseUrl = `https://asterhospital.vercel.app/doctors/remoteuservideo`
         const params = new URLSearchParams({ peerId: peerId })
         const urlWithData = `${baseUrl}?${params.toString() || ''}`
 
