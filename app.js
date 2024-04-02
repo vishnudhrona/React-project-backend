@@ -1,16 +1,16 @@
 require('dotenv').config()
-var createError = require('http-errors');
-var express = require('express');
-var cors = require('cors')
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-var cookieSession = require('cookie-session')
+const createError = require('http-errors');
+const express = require('express');
+const cors = require('cors')
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const cookieSession = require('cookie-session')
 
 
-var app = express();
+const app = express();
 
-const allowedOrigin = 'https://asterhospital.vercel.app'
+const allowedOrigin = 'http://localhost:5173'
 
 const corsOptions = {
   origin: allowedOrigin,
@@ -21,9 +21,9 @@ const corsOptions = {
   optionsSuccessStatus: 204,
 };
 
-var usersRouter = require('./routes/users');
-var adminRouter = require('./routes/admin');
-var doctorRouter = require('./routes/doctors')
+const usersRouter = require('./routes/users');
+const adminRouter = require('./routes/admin');
+const doctorRouter = require('./routes/doctors')
 
 const database=require('./config/connection')
 
@@ -47,7 +47,7 @@ app.use(
 app.use(cors(corsOptions));
 
 app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "https://asterhospital.vercel.app");
+  res.header("Access-Control-Allow-Origin", "http://localhost:5173");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   res.header("Access-Control-Allow-Credentials", "true");
@@ -55,6 +55,10 @@ app.use(function(req, res, next) {
 });
 
 database();
+
+app.get('/',(req, res) => {
+  res.send('working')
+})
 
 app.use('/', usersRouter);
 app.use('/admin', adminRouter);

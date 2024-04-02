@@ -26,7 +26,9 @@ router.post('/updatepatientdata',userControllers.updatePatientData)
 router.post('/deletependingslots',userControllers.deletePendingSlots)
 router.get('/fetchlastappointment',userControllers.fetchLastAppointment)
 router.get('/fetchprescription',userControllers.fetchPrescription)
-router.get('/landingpagefetchDoctors', userControllers. landingPageFetchDoctors)
+router.get('/landingpagefetchDoctors',userControllers.landingPageFetchDoctors)
+router.post('/usergoogleauthentication',userControllers.userGoogleAuthentication)
+router.post('/googleauthenticationlogin',userControllers.googleAuthenticationLogin)
 
 
 module.exports = router;

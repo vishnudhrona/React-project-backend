@@ -5,6 +5,7 @@ const userHelpers = require('../helpers/userHelpers')
 const { signUser } = require('../middlewares/jwt')
 const { S3Client, PutObjectCommand, GetObjectCommand} = require("@aws-sdk/client-s3");
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
+const axios = require('axios');
 
 const bucketName = process.env.BUCKET_NAME
 const region = process.env.BUCKET_REGION
@@ -338,12 +339,14 @@ const userBookedSlots = (req, res) => {
     const updatePatientData = (req, res) => {
         try {
             const { dob } = req.body
+            console.log(dob,'iiiiiiiiii00002222222222');
             let dateOfBirth = new Date(dob)
             dateOfBirth = dateOfBirth.toLocaleDateString()
             const body = {
                 ...req.body.formData,
                 dateOfBirth
             }
+            console.log(body,'99999999999999999');
             userHelpers.updatePatientData(body).then((response) => {
                 res.status(200).json({ response })
             }) 
@@ -418,6 +421,64 @@ const userBookedSlots = (req, res) => {
         }
     }
 
+const userGoogleAuthentication = async (req, res) => {
+    try {
+        const { tokenResponse } = req.body
+
+        const authDetails = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
+            headers: {
+                Authorization: `Bearer ${tokenResponse.access_token}`,
+            },
+        });
+
+        userHelpers.fetchingExistingUser(authDetails.data.email).then(async(response) => {
+            try {
+                const { existingUser } = response
+                if(response.status) {
+                    const token = await signUser(existingUser)
+                    res.status(200).json({ status : true, existingUser, token })
+                } else {
+                    console.log('else case is workingggg');
+                    res.status(200).json({ response : authDetails.data })
+                }
+            } catch(err) {
+                console.error(err);
+            }
+        })
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+
+const googleAuthenticationLogin = (req, res) => {
+    try {
+        const { dob } = req.body
+        let dateOfBirth = new Date(dob)
+        dateOfBirth = dateOfBirth.toLocaleDateString()
+        const body = {
+            ...req.body.formData,
+            ...req.body.authDetails,
+            dateOfBirth,
+            signupStatus : 'unblock'
+        }
+        userHelpers.googleAuthenticationLogin(body).then(async(response) => {
+            if(response.status) {
+                const { authUser } = response
+                const token = await signUser(authUser)
+                res.status(200).json({ authUser, token })
+            } else {
+                const { existingUser } = response
+                const token = await signUser(existingUser)
+                console.log(token,'existinguser tokennnnnnnn');
+                res.status(200).json({ existingUser, token })
+            }
+        })
+    } catch(err) {
+        console.error(err);
+    }
+}
+
 
 module.exports = {
     userSignup,
@@ -442,5 +503,7 @@ module.exports = {
     deletePendingSlots,
     fetchPrescription,
     fetchLastAppointment,
-    landingPageFetchDoctors
+    landingPageFetchDoctors,
+    userGoogleAuthentication,
+    googleAuthenticationLogin
 }

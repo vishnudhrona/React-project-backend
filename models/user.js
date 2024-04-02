@@ -34,7 +34,7 @@ const userSchema = new Schema({
 
     password : {
         type : String,
-        required : true
+        required : false
     },
 
     otp: {
@@ -45,7 +45,6 @@ const userSchema = new Schema({
     signupStatus : {
         type: String,
         required: false 
-        // default : false
     }
 })
 
