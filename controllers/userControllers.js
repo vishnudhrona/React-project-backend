@@ -339,14 +339,12 @@ const userBookedSlots = (req, res) => {
     const updatePatientData = (req, res) => {
         try {
             const { dob } = req.body
-            console.log(dob,'iiiiiiiiii00002222222222');
             let dateOfBirth = new Date(dob)
             dateOfBirth = dateOfBirth.toLocaleDateString()
             const body = {
                 ...req.body.formData,
                 dateOfBirth
             }
-            console.log(body,'99999999999999999');
             userHelpers.updatePatientData(body).then((response) => {
                 res.status(200).json({ response })
             }) 
@@ -438,7 +436,6 @@ const userGoogleAuthentication = async (req, res) => {
                     const token = await signUser(existingUser)
                     res.status(200).json({ status : true, existingUser, token })
                 } else {
-                    console.log('else case is workingggg');
                     res.status(200).json({ response : authDetails.data })
                 }
             } catch(err) {
@@ -470,7 +467,6 @@ const googleAuthenticationLogin = (req, res) => {
             } else {
                 const { existingUser } = response
                 const token = await signUser(existingUser)
-                console.log(token,'existinguser tokennnnnnnn');
                 res.status(200).json({ existingUser, token })
             }
         })

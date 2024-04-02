@@ -435,7 +435,6 @@ const fetchUserDetails = (patientId) => {
 }
 
 const updatePatientData = (patientDetails) => {
-    console.log(patientDetails,'yyyyyyyyuuuuuuuuuuqqqq');
     return new Promise(async(resolve, reject) => {
         try {
             let updatedPatient = await User.updateOne({ email : patientDetails.email },{$set : {
@@ -446,7 +445,6 @@ const updatePatientData = (patientDetails) => {
                 number : patientDetails.number,
                 email : patientDetails.email
             }})
-            console.log(updatedPatient,'99999999999111111111');
             resolve(updatedPatient)
         } catch(err) {
             console.error(err);
@@ -498,11 +496,9 @@ const landingPageFetchDoctors = () => {
 }
 
 const fetchingExistingUser = (authEmail) => {
-    console.log(authEmail,'i got authentication email');
     return new Promise(async(resolve, reject) => {
         try {
             let existingUser = await User.findOne({ email : authEmail })
-            console.log(existingUser,'tttttttttttyyyyyqqqqqqqqqq');
             if(existingUser) {
                 resolve({ existingUser, status : true })
             } else {
