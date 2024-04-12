@@ -7,7 +7,7 @@ const env = require('dotenv').config({ path: __dirname + '/../.env' })
 const crypto = require('crypto');
 const sharp = require('sharp');
 const { signDoctor } = require('../middlewares/jwt');
-const puppeteer = require('puppeteer')
+const puppeteer = require('puppeteer');
 const BASE_URL = process.env.BASE_URL
 
 const randomNameImage = (bytes = 32) => crypto.randomBytes(bytes).toString('hex')
@@ -197,7 +197,11 @@ const doctorTimeschedule = (req, res) => {
         }
 
         doctorHelpers.doctorTimeschedule(weeklySchedule).then((response) => {
-            res.status(200).json({ response })
+            if (response.status) {
+                res.status(200).json({status : true, message: 'This schedule already exist' })
+            } else {
+                res.status(200).json({ status : false })
+            }
         })
     } catch (err) {
         console.error(err);
@@ -288,7 +292,7 @@ const invitingPatient = (req, res) => {
 
         const { URLSearchParams } = require('url');
 
-        const baseUrl = `https://asterhospital.vercel.app/doctors/remoteuservideo`
+        const baseUrl = `http://localhost:5173/doctors/remoteuservideo`
         const params = new URLSearchParams({ peerId: peerId })
         const urlWithData = `${baseUrl}?${params.toString() || ''}`
 
@@ -451,6 +455,43 @@ const fetchPatientDetails = (req, res) => {
     }
 }
 
+const fetchEditProfile = (req, res) => {
+    try {
+        doctorHelpers.fetchEditProfile(req.query).then((doctorProfile) => {
+            res.status(200).json({ doctorProfile })
+        })
+    } catch(err) {
+        console.error(err);
+    }
+}
+
+const updateDoctorProfile = async(req, res) => {
+    try {
+        console.log(req.body,'111111222222');
+        let docProf = null
+        const buffer = await sharp(req.file.buffer).resize({ height: 386, width: 271, fit: 'inside'}).toBuffer()
+        const imageName = randomNameImage()
+        const params = {
+            Bucket: bucketName,
+            Key: imageName,
+            Body: buffer,
+            ContentType: req.file.mimetype
+        }
+
+        const command = new PutObjectCommand(params)
+        await s3.send(command)
+
+        docProf = req.body
+        docProf.imageName = imageName
+        
+        let updateDocProfile = await doctorHelpers.updateDocProfile(docProf)
+            res.status(200).json({ updateDocProfile })
+
+    } catch(err) {
+        console.error(err);
+    }
+}
+
 module.exports = {
     doctorSignup,
     doctorOtpVerification,
@@ -469,4 +510,6 @@ module.exports = {
     fetchDocPaymentDetails,
     addPrescription,
     fetchPatientDetails,
+    fetchEditProfile,
+    updateDoctorProfile
 }

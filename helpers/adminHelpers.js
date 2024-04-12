@@ -119,11 +119,18 @@ const doctorApproval = (doctorId) => {
 }
 
 const addDepartment = (department) => {
-    return new Promise(async(resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         try {
-            let addedDeparment = await Department.create(department.formData)
-            resolve({ status : true })
-        } catch(err) {
+            let existDepartment = await Department.find()
+            let addedDepartment = department.formData.department.toLowerCase()
+            let departmentExists = existDepartment.some(dep => dep.department.toLowerCase() === addedDepartment)
+            if (departmentExists) {
+                resolve({ status: false })
+            } else {
+                let addedDeparment = await Department.create(department.formData)
+                resolve({ status: true })
+            }
+        } catch (err) {
             console.error(err);
         }
     })
@@ -165,10 +172,17 @@ const fetchEditDepartment = (depId) => {
 const updateDepartment = (depId) => {
     return new Promise(async(resolve, reject) => {
         try {
-            let updated = await Department.updateOne({ _id : depId.department._id },{$set : {
-                department : depId.department.department
-            }})
-            resolve(updated)
+            let editedDepartment = depId.department.department.toLowerCase()
+            let existingDepartment = await Department.find()
+            let departmentExists = existingDepartment.some(dep => dep.department.toLowerCase() === editedDepartment)
+            if(departmentExists) {
+                resolve({ status : false })
+            } else {
+                let updated = await Department.updateOne({ _id : depId.department._id },{$set : {
+                    department : depId.department.department
+                }})
+                resolve({ status : true })
+            }
         } catch(err) {
             console.error(err);
         }

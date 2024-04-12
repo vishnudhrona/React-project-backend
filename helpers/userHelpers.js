@@ -213,8 +213,9 @@ const resendOtp = (email) => {
 const sortDoctor = (speciality) => {
  return new Promise(async(resolve, reject) => {
     if(speciality.search) {
+        const specialities = speciality.search.split(',')
             let dep = await DoctorProfile.find({
-                department: speciality.search
+                department: { $in:  specialities }
              }); 
              let filteredDoc = dep.filter((value) => value.signupStatus === 'Approved')
                resolve(filteredDoc)

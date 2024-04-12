@@ -24,5 +24,7 @@ router.get('/invitingpatient',doctorControllers.invitingPatient)
 router.get('/fetchdocpaymentdetails',autherizeRole('doctor'),doctorControllers.fetchDocPaymentDetails)
 router.post('/addprescription',doctorControllers.addPrescription)
 router.get('/fetchpatientdetails',doctorControllers.fetchPatientDetails)
+router.get('/fetcheditprofile',doctorControllers.fetchEditProfile)
+router.post('/updatedoctorprofile',upload.single('image'),doctorControllers.updateDoctorProfile)
 
 module.exports = router;

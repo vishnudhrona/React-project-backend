@@ -89,7 +89,7 @@ const doctorProfileSchema = new Schema({
 
     imageName : {
         type: String,
-        required: true
+        required: false
     }, 
 
     fee : {

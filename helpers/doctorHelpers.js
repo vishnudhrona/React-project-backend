@@ -224,9 +224,40 @@ const fetchDoctorTimeSchedule = (docId) => {
 
 const doctorTimeschedule = (schedule) => {
     return new Promise(async(resolve, reject) => {
+        let existingSchedule = []
         try {
-            let addSchedule = await DoctorTime.create(schedule)
-            resolve({ status : false })
+
+            for (const item of schedule) {
+                const doctorId = item.doctorId
+                existingSchedule = await DoctorTime.find({ doctorId : doctorId })
+            }
+            schedule.sort((a, b) => {
+                const dateA = new Date(a.dateObject.split('/').reverse().join('/'));
+                const dateB = new Date(b.dateObject.split('/').reverse().join('/'));
+                return dateA - dateB;
+            })
+
+            existingSchedule.sort((a, b) => {
+                const dateA = new Date(a.dateObject.split('/').reverse().join('/'))
+                const dateB = new Date(b.dateObject.split('/').reverse().join('/'))
+                return dateA - dateB
+            })
+            let commonDates = []
+             
+            existingSchedule.forEach(existingAppt => {
+                let matchingAppt = schedule.find(scheduleAppt => scheduleAppt.dateObject === existingAppt.dateObject)
+
+                if(matchingAppt) {
+                    commonDates.push(existingAppt.dateObject)
+                }
+            })
+
+            if(commonDates.length > 0) {
+                resolve({ status : true })
+            } else {
+                let addSchedule = await DoctorTime.create(schedule)
+                resolve({ status : false })
+            }
         } catch(err) {
             console.error(err);
         }
@@ -372,6 +403,49 @@ const fetchPatientDetails = (patientId) => {
     })
 }
 
+const fetchEditProfile = (doctorId) => {
+    return new Promise(async(resolve, reject) => {
+        try {
+            let doctorProfile = await DoctorProfile.findOne({ doctorId : doctorId.doctorId })
+            resolve(doctorProfile)
+        } catch(err) {
+            console.error(err);
+        }
+    })
+}
+
+const updateDocProfile = (docProf) => {
+    console.log(docProf,'---------------11111');
+    return new Promise(async(resolve, reject) => {
+        try {
+            let updateDocProf = await DoctorProfile.updateOne({ doctorId : docProf.doctorId}, {$set : {
+                imageName : docProf.imageName,
+                firstname : docProf.firstname,
+                lastname : docProf.lastname,
+                department : docProf.department,
+                gender : docProf.gender,
+                number : docProf.number,
+                email : docProf.email,
+                house : docProf.house,
+                village : docProf.village,
+                city : docProf.city,
+                year : docProf.year,
+                degree : docProf.degree,
+                college : docProf.college,
+                experiencedyear : docProf.experiencedyear,
+                workeddepartment : docProf.workeddepartment,
+                position : docProf.position,
+                hospital : docProf.hospital,
+                description : docProf.description,
+                fee : docProf.fee,
+            }})
+            resolve({ status : true })
+        } catch(err) {
+            console.error(err);
+        }
+    })
+}
+
 module.exports = {
     doctorSignup,
     docOtpVerify,
@@ -391,4 +465,6 @@ module.exports = {
     fetchDocPaymentDetails,
     addPrescription,
     fetchPatientDetails,
+    fetchEditProfile,
+    updateDocProfile
 }
