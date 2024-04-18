@@ -292,7 +292,7 @@ const invitingPatient = (req, res) => {
 
         const { URLSearchParams } = require('url');
 
-        const baseUrl = `http://localhost:5173/doctors/remoteuservideo`
+        const baseUrl = `asterhospital.vercel.app/doctors/remoteuservideo`
         const params = new URLSearchParams({ peerId: peerId })
         const urlWithData = `${baseUrl}?${params.toString() || ''}`
 
@@ -494,7 +494,6 @@ const updateDoctorProfile = async(req, res) => {
 const fetchDoctorHomeBarChartData = (req, res) => {
     try {
         doctorHelpers.fetchDoctorHomeBarChartData().then((response) => {
-            console.log(response,'6666666661111112222');
             res.status(200).json({ response })
         })
     } catch(err) {
