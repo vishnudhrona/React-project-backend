@@ -26,5 +26,6 @@ router.post('/addprescription',doctorControllers.addPrescription)
 router.get('/fetchpatientdetails',doctorControllers.fetchPatientDetails)
 router.get('/fetcheditprofile',doctorControllers.fetchEditProfile)
 router.post('/updatedoctorprofile',upload.single('image'),doctorControllers.updateDoctorProfile)
+router.get('/barchartdoctorhome',doctorControllers.fetchDoctorHomeBarChartData)
 
 module.exports = router;

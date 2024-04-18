@@ -185,6 +185,14 @@ const doctorVerifyPayment = (req, res) => {
     }
 }
 
+const fetchBarchartBookingDetails = (req, res) => {
+    try {
+        adminHelpers.fetchBarchartBookingDetails()
+    } catch(err) {
+        console.error(err);
+    }
+}
+
 module.exports = {
     adminLogin,
     doctorManagement,
@@ -200,5 +208,6 @@ module.exports = {
     blockUser,
     paymentManagement,
     doctorPayment,
-    doctorVerifyPayment
+    doctorVerifyPayment,
+    fetchBarchartBookingDetails
 }

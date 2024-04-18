@@ -124,7 +124,6 @@ const resendOtp = (req, res) => {
 
 const sortDoctor = async(req, res) => {
     try {
-        console.log(req.query,'5555555555555111111111111111');
         let sortedDocs = await userHelpers.sortDoctor(req.query)
 
         if(sortedDocs && sortedDocs.length > 0) {

@@ -415,7 +415,6 @@ const fetchEditProfile = (doctorId) => {
 }
 
 const updateDocProfile = (docProf) => {
-    console.log(docProf,'---------------11111');
     return new Promise(async(resolve, reject) => {
         try {
             let updateDocProf = await DoctorProfile.updateOne({ doctorId : docProf.doctorId}, {$set : {
@@ -446,6 +445,17 @@ const updateDocProfile = (docProf) => {
     })
 }
 
+const fetchDoctorHomeBarChartData = () => {
+    return new Promise(async(resolve, reject) => {
+        try {
+            let barChartData = await BookingDetails.find()
+            resolve(barChartData) 
+        } catch(err) {
+            console.error(err);
+        }
+    })
+}
+
 module.exports = {
     doctorSignup,
     docOtpVerify,
@@ -466,5 +476,6 @@ module.exports = {
     addPrescription,
     fetchPatientDetails,
     fetchEditProfile,
-    updateDocProfile
+    updateDocProfile,
+    fetchDoctorHomeBarChartData
 }

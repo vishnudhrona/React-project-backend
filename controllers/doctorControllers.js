@@ -467,7 +467,6 @@ const fetchEditProfile = (req, res) => {
 
 const updateDoctorProfile = async(req, res) => {
     try {
-        console.log(req.body,'111111222222');
         let docProf = null
         const buffer = await sharp(req.file.buffer).resize({ height: 386, width: 271, fit: 'inside'}).toBuffer()
         const imageName = randomNameImage()
@@ -492,6 +491,17 @@ const updateDoctorProfile = async(req, res) => {
     }
 }
 
+const fetchDoctorHomeBarChartData = (req, res) => {
+    try {
+        doctorHelpers.fetchDoctorHomeBarChartData().then((response) => {
+            console.log(response,'6666666661111112222');
+            res.status(200).json({ response })
+        })
+    } catch(err) {
+        console.error(err);
+    }
+}
+
 module.exports = {
     doctorSignup,
     doctorOtpVerification,
@@ -511,5 +521,6 @@ module.exports = {
     addPrescription,
     fetchPatientDetails,
     fetchEditProfile,
-    updateDoctorProfile
+    updateDoctorProfile,
+    fetchDoctorHomeBarChartData
 }
